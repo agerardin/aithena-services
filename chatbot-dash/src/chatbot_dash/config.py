@@ -6,6 +6,10 @@ from aithena_services.envvars import (
     OPENAI_AVAILABLE,
 )
 
+import os
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv(), override=True)
+
 logging.basicConfig(
     format="%(asctime)s - %(name)-8s - %(levelname)-8s - %(message)s",
     datefmt="%d-%b-%y %H:%M:%S",
@@ -22,6 +26,8 @@ logger = get_logger(__file__)
 if AZURE_OPENAI_AVAILABLE:
     from aithena_services.envvars import AZURE_OPENAI_MODEL_ENV
     from aithena_services.llms import AzureOpenAI
+    AZURE_OPENAI_DEPLOYMENT = os.getenv("AZURE_OPENAI_DEPLOYMENT", None)
+    AZURE_OPENAI_MODEL = os.getenv("AZURE_OPENAI_MODEL", None)
 if OPENAI_AVAILABLE:
     from aithena_services.llms import OpenAI
 if OLLAMA_AVAILABLE:
@@ -45,7 +51,7 @@ def create_llm(name: str):
     Configuration are defined through environment variables in aithena services.
     ."""
     if AZURE_OPENAI_AVAILABLE and name.startswith("azure/"):
-        return AzureOpenAI()
+        return AzureOpenAI(model=AZURE_OPENAI_DEPLOYMENT, deployment=AZURE_OPENAI_DEPLOYMENT)
     if OPENAI_AVAILABLE and name in OpenAI.list_models():
         return OpenAI(model=name)
     if OLLAMA_AVAILABLE and name in Ollama.list_models():

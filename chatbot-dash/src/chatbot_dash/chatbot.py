@@ -9,6 +9,8 @@ from chatbot_dash.components.chat_options import ChatOptions
 from chatbot_dash.components.editable_message import EditableMessage
 from chatbot_dash.components.model_info import ModelInfo
 from chatbot_dash.config import get_logger
+from solara.lab import task
+
 
 logger = get_logger(__file__)
 
@@ -54,8 +56,10 @@ def Page():
             {"role": "user", "content": message},
         ]
         logger.debug(f"create a new user message: {message}")
+        call_llm()
 
-    def call_llm():
+    @task
+    async def call_llm():
         """Send chat history to the llm and update chat history with the response."""
         if user_message_count == 0:
             return
@@ -71,7 +75,6 @@ def Page():
         for chunk in response:
             if chunk:
                 update_response(chunk.delta)
-
         logger.debug("response completed...")
 
     def update_response(chunk: str):
@@ -86,9 +89,6 @@ def Page():
             },
         ]
 
-    # call the llm with the message history whenever a new user message is created
-    task = solara.lab.use_task(call_llm, dependencies=[user_message_count])  # type: ignore
-
     with solara.Column(
         style={
             "width": "100%",
@@ -100,7 +100,7 @@ def Page():
     ):
         ChatOptions(current_llm_name, messages, edit_mode, reset_on_change)
 
-        solara.ProgressLinear(task.pending)
+        solara.ProgressLinear(call_llm.pending)
 
         with solara.lab.ChatBox():
             """Display message history."""
@@ -146,17 +146,17 @@ def Page():
                                 model_labels,
                                 index,
                                 f"azure/{current_llm.value.engine}",
-                                task,
+                                call_llm,
                                 is_last,
                             )
                         else:
-                            ModelInfo(model_labels, index, current_llm.value.model, task, is_last)
+                            ModelInfo(model_labels, index, current_llm.value.model, call_llm, is_last)
 
 
         """Anchor the chat input at the bottom of the screen."""
         solara.lab.ChatInput(
             send_callback=create_user_message,
-            disabled=task.pending,
+            disabled=call_llm.pending,
             style={
                 "position": "fixed",
                 "bottom": "0",
