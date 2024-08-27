@@ -39,7 +39,8 @@ def Page():
     solara.Style(FILE_PATH.joinpath("style.css")) 
     solara.Title("Aithena")
 
-    # updated at each page refresh
+    # could be a useful dependency if we wanted to regenerate when external
+    # tools modify the message history. Unused for now.
     user_message_count = len([m for m in messages.value if m["role"] == "user"])
 
     current_llm: solara.Reactive[LLM] = solara.reactive(  # type: ignore
@@ -61,8 +62,6 @@ def Page():
     @task
     async def call_llm():
         """Send chat history to the llm and update chat history with the response."""
-        if user_message_count == 0:
-            return
         logger.debug("calling llm with chat history")
         
         response = current_llm.value.stream_chat(messages=messages.value)
