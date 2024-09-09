@@ -11,12 +11,21 @@ from chatbot_dash.components.model_info import ModelInfo
 from chatbot_dash.config import get_logger
 from solara.lab import task
 import asyncio
+import typing
+
+
+from aithena_services.llms.types.message import AssistantMessage, Message, UserMessage
 
 logger = get_logger(__file__)
 
 
 @solara.component
-def ChatBot(messages : solara.Reactive[list[dict]], current_llm_name : solara.Reactive[str], current_llm: solara.Reactive[AithenaLLM]):
+def ChatBotPydantic(
+    messages : solara.Reactive[list[Message]],
+    current_llm_name : solara.Reactive[str],
+    current_llm: solara.Reactive[AithenaLLM],
+    on_response_completed: typing.Union[typing.Callable,None] = None
+    ):
 
     """when set, history will be erased on model change."""
     reset_on_change: solara.Reactive[bool] = solara.reactive(False)
@@ -26,14 +35,13 @@ def ChatBot(messages : solara.Reactive[list[dict]], current_llm_name : solara.Re
     edit_mode: solara.Reactive[bool] = solara.reactive(False)
     edit_index = solara.reactive(None)
     current_edit_value = solara.reactive("")
-
     model_labels: solara.Reactive[dict[int, str]] = solara.reactive({})
 
     def send_message(message):
         """"Update the message history with a new user message."""
         messages.value = [
             *messages.value,
-            {"role": "user", "content": message},
+            Message({"role": "user", "content": message})
         ]
         logger.debug(f"create a new user message: {message}")
         call_llm()
@@ -45,12 +53,14 @@ def ChatBot(messages : solara.Reactive[list[dict]], current_llm_name : solara.Re
         response = current_llm.value.stream_chat(messages=messages.value)
         messages.value = [
             *messages.value,
-            {"role": "assistant", "content": ""},
+            Message({"role": "assistant", "content": ""})
         ]
         
         for chunk in response: # NOTE the async for iterating the async generator
             print(chunk.delta, end="", flush=True)
             update_response_message(chunk.delta)
+        if on_response_completed is not None:
+            on_response_completed(messages)
 
     def update_response_message(chunk: str):
         """Add next chunk to current llm response.
@@ -58,10 +68,7 @@ def ChatBot(messages : solara.Reactive[list[dict]], current_llm_name : solara.Re
         """
         messages.value = [
             *messages.value[:-1],
-            {
-                "role": "assistant",
-                "content": messages.value[-1]["content"] + chunk,
-            },
+            Message({"role": "assistant", "content": messages.value[-1].content + chunk})
         ]
 
     with solara.Column(
@@ -81,9 +88,9 @@ def ChatBot(messages : solara.Reactive[list[dict]], current_llm_name : solara.Re
             """Display message history."""
             for index, item in enumerate(messages.value):
                 is_last = index == len(messages.value) - 1
-                if item["role"] == "system": # do not display system prompt
+                if item.role == "system": # do not display system prompt
                     continue
-                if item["content"] == "": # do not display initial empty message content
+                if item.content == "": # do not display initial empty message content
                     continue
                 with solara.Column(gap="0px"):
                     with solara.Div(style={"background-color": "rgba(0,0,0.3, 0.06)"}):
@@ -93,28 +100,28 @@ def ChatBot(messages : solara.Reactive[list[dict]], current_llm_name : solara.Re
                         default Markdown component that displays the message content.
                         """
                         with solara.lab.ChatMessage(
-                            user=item["role"] == "user",
+                            user=item.role == "user",
                             avatar=False,
-                            name="Aithena" if item["role"] == "assistant" else "User",
+                            name="Aithena" if item.role == "assistant" else "User",
                             color=(
                                 "rgba(0,0,0, 0.06)"
-                                if item["role"] == "assistant"
+                                if item.role == "assistant"
                                 else "#ff991f"
                             ),
                             avatar_background_color=(
-                                "primary" if item["role"] == "assistant" else None
+                                "primary" if item.role == "assistant" else None
                             ),
                             border_radius="20px",
                             style={
                                 "padding": "10px",
                             },
                         ):
-                            if edit_mode.value and item["role"] == "assistant":
-                                EditableMessage(messages, item["content"], index, edit_index, current_edit_value)
+                            if edit_mode.value and item.role == "assistant":
+                                EditableMessage(messages, item.content, index, edit_index, current_edit_value)
                             else:
-                                solara.Markdown(item["content"])
+                                solara.Markdown(item.content)
 
-                    if item["role"] == "assistant":
+                    if item.role == "assistant":
                         """display the model name under the llm response."""
                         if current_llm.value.class_name == "azure_openai_llm":
                             ModelInfo(
