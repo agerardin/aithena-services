@@ -164,7 +164,7 @@ def test_azure_args2(azure_chat, query_1):
     gpt4o = azure(model=MODEL, deployment=DEPLOYMENT, temperature=0, seed=12)
     response1 = gpt4o.chat(query_1)
     url = f"""
-    {AZURE_OPENAI_ENV_DICT["azure_endpoint"]}openai/
+    {AZURE_OPENAI_ENV_DICT["azure_endpoint"]}/openai/
     deployments/{DEPLOYMENT}/chat/
     completions?api-version={AZURE_OPENAI_ENV_DICT["api_version"]}
     """.replace(

@@ -1,8 +1,9 @@
-FROM ubuntu:jammy
+# FROM ubuntu:jammy
+FROM python:3.11-slim
 
-RUN apt update && \
-    apt upgrade -y && \
-    apt install -y python3-pip
+# RUN apt update && \
+#     apt upgrade -y && \
+#     apt install -y python3-pip
 
 COPY . /aithena_services_src
 
