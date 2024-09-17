@@ -1,0 +1,95 @@
+{
+    "models": [
+        {
+            "name": "phi3.5:latest",
+            "model": "phi3.5:latest",
+            "backend": "ollama",
+            "config": {
+                "url": "http://localhost:11434/"
+            },
+            "params": null
+        },
+        {
+            "name": "llama3.1:latest",
+            "model": "llama3.1:latest",
+            "backend": "ollama",
+            "config": {
+                "url": "http://localhost:11434/"
+            },
+            "params": null
+        },
+        {
+            "name": "longllama16k:latest",
+            "model": "longllama16k:latest",
+            "backend": "ollama",
+            "config": {
+                "url": "http://localhost:11434/"
+            },
+            "params": null
+        },
+        {
+            "name": "longllama32k:latest",
+            "model": "longllama32k:latest",
+            "backend": "ollama",
+            "config": {
+                "url": "http://localhost:11434/"
+            },
+            "params": null
+        },
+        {
+            "name": "phi3:latest",
+            "model": "phi3:latest",
+            "backend": "ollama",
+            "config": {
+                "url": "http://localhost:11434/"
+            },
+            "params": null
+        },
+        {
+            "name": "qwen2:latest",
+            "model": "qwen2:latest",
+            "backend": "ollama",
+            "config": {
+                "url": "http://localhost:11434/"
+            },
+            "params": null
+        },
+        {
+            "name": "gemma2:latest",
+            "model": "gemma2:latest",
+            "backend": "ollama",
+            "config": {
+                "url": "http://localhost:11434/"
+            },
+            "params": null
+        },
+        {
+            "name": "azure-gpt-4o-mini",
+            "model": "gpt-4o-mini",
+            "backend": "azure",
+            "config": {
+                "endpoint": "https://abc.openai.azure.com/",
+                "api_version": "2024-02-01",
+                "deployment": "aithena"
+            }
+        },
+        {
+            "name": "llama3:latest",
+            "model": "llama3:latest",
+            "backend": "ollama",
+            "config": {
+                "url": "http://localhost:11434/"
+            },
+            "params": null
+        },
+        {
+            "name": "gpt-4o-mini-direct",
+            "model": "gpt-4o-mini",
+            "backend": "openai",
+            "config": {
+                "url": null
+            },
+            "params": null
+        }
+    ]
+}

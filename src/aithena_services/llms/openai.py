@@ -1,3 +1,4 @@
+# mypy: disable-error-code="import-untyped"
 """OpenAI Implementation based on LlamaIndex."""
 
 # pylint: disable=too-many-ancestors
@@ -7,18 +8,13 @@ from llama_index.llms.openai import OpenAI as LlamaIndexOpenAI  # type: ignore
 from openai import OpenAI as OpenAIClient
 
 from aithena_services.llms.types import Message
-from aithena_services.llms.types.base import (
-    AithenaLLM,
-    achataithena,
-    astreamchataithena,
-    chataithena,
-    streamchataithena,
-)
+from aithena_services.llms.types.base import AithenaLLM, chataithena, streamchataithena
 from aithena_services.llms.types.response import (
     ChatResponse,
     ChatResponseAsyncGen,
     ChatResponseGen,
 )
+from aithena_services.llms.utils import check_and_cast_messages
 
 
 def custom_sort_for_openai_models(name: str) -> tuple[int, str]:
@@ -84,7 +80,6 @@ class OpenAI(LlamaIndexOpenAI, AithenaLLM):
         """
         return super().stream_chat(messages, **kwargs)  # type: ignore
 
-    @achataithena
     async def achat(
         self, messages: Sequence[dict | Message], **kwargs: Any
     ) -> ChatResponse:
@@ -94,13 +89,14 @@ class OpenAI(LlamaIndexOpenAI, AithenaLLM):
             messages: entire list of message history, where last
                 message is the one to be responded to
         """
-        return super().achat(messages, **kwargs)  # type: ignore
+        messages_ = check_and_cast_messages(messages)
+        llama_index_response = await super().achat(messages_, **kwargs)
+        return ChatResponse.from_llamaindex(llama_index_response)
 
-    @astreamchataithena
     async def astream_chat(
         self, messages: Sequence[dict | Message], **kwargs: Any
     ) -> ChatResponseAsyncGen:
-        """Async stream chat with a model in OpenAI.
+        """Async stream chat with a model in Azure OpenAI.
 
         Each response is a `ChatResponse` and has a `.delta`
         attribute useful for incremental updates.
@@ -109,4 +105,11 @@ class OpenAI(LlamaIndexOpenAI, AithenaLLM):
             messages: entire list of message history, where last
                 message is the one to be responded to
         """
-        return super().astream_chat(messages, **kwargs)  # type: ignore
+        messages = check_and_cast_messages(messages)
+        llama_stream = super().astream_chat(messages, **kwargs)
+
+        async def gen() -> ChatResponseAsyncGen:
+            async for response in await llama_stream:
+                yield ChatResponse.from_llamaindex(response)
+
+        return gen()

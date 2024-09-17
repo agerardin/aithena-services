@@ -1,0 +1,37 @@
+{
+    "chat_models": [
+        {
+            "name": "gpt-4o",
+            "model": "gpt-4o",
+            "backend": "azure",
+            "config": {
+                "endpoint": "https://nlab.openai.azure.com/",
+                "api_version": "2024-02-01",
+                "deployment": "gpt-4o"
+            },
+            "params": null
+        },
+        {
+            "name": "gpt-4o-mini",
+            "model": "gpt-4o-mini",
+            "backend": "azure",
+            "config": {
+                "endpoint": null,
+                "api_version": null,
+                "deployment": "aithena"
+            },
+            "params": null
+        }
+    ],
+    "embed_models": [
+        {
+            "name": "nomic-embed-text:latest",
+            "model": "nomic-embed-text:latest",
+            "backend": "ollama",
+            "config": {
+                "url": "http://192.0.0.89:11434/"
+            },
+            "params": null
+        }
+    ]
+}

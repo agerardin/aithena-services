@@ -18,7 +18,7 @@ AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION", None)
 AZURE_OPENAI_MODEL_ENV = os.getenv("AZURE_OPENAI_DEPLOYMENT", None)
 AZURE_OPENAI_ENV_DICT = {
     "api_key": AZURE_OPENAI_KEY,
-    "endpoint": AZURE_OPENAI_ENDPOINT,
+    "azure_endpoint": AZURE_OPENAI_ENDPOINT,  # redundant, compatible with LI
     "api_version": AZURE_OPENAI_API_VERSION,
 }
 

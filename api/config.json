@@ -1,0 +1,16 @@
+{
+    "chat_models": [
+        {
+            "name": "azure-gpt-4o",
+            "model": "gpt-4o",
+            "backend": "azure",
+            "config": {
+                "endpoint": "https://itrb.openai.azure.com/",
+                "api_version": "2024-02-01",
+                "deployment": "gpt-4o"
+            },
+            "params": null
+        }
+    ],
+    "embed_models": []
+}

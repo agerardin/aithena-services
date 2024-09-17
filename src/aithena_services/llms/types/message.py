@@ -3,6 +3,7 @@
 import enum
 from typing import TYPE_CHECKING, Optional, Union, overload
 
+from llama_index.core.base.llms.types import ChatMessage as LlamaIndexMessage
 from pydantic import BaseModel, Field, RootModel
 from typing_extensions import Annotated, Literal
 
@@ -169,8 +170,21 @@ class Message(RootModel):
             exclude={"role", "content"},
         )
 
-    def __repr__(self):
-        return f"Message(role={self.root.role}, content={self.root.content})"
+    def to_llamaindex(self) -> LlamaIndexMessage:
+        """Convert to LlamaIndex ChatMessage."""
+        return LlamaIndexMessage(
+            role=self.root.role.value,
+            content=self.root.content,
+            **self.additional_kwargs,
+        )
 
-    def __str__(self):
-        return f"Message(role={self.root.role}, content={self.root.content})"
+    @classmethod
+    def from_llamaindex(cls, llama_index_message: LlamaIndexMessage) -> "Message":
+        """Create Aithena Message from LlamaIndex ChatMessage."""
+        return cls(**llama_index_message.dict())
+
+    def __repr__(self):
+        return f"Message(role={self.root.role.value}, content={self.root.content})"
+
+    def __str__(self) -> str:  # same as LlamaIndexMessage.__str__
+        return f"{self.root.role.value}: {self.root.content}"

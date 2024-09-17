@@ -2,7 +2,7 @@
 
 import pytest
 
-from aithena_services.llms.types import Message
+from aithena_services.llms.types import Message  # type: ignore
 
 
 @pytest.fixture

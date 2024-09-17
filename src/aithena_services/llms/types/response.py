@@ -20,9 +20,14 @@ class ChatResponse(LlamaIndexChatResponse):
         cls, llama_index_response: LlamaIndexChatResponse
     ) -> "ChatResponse":
         """Create ChatResponse from LlamaIndex ChatResponse."""
-        msg = Message(**llama_index_response.message.dict())
-        li_ = llama_index_response.copy(update={"message": msg})
-        return cls(**li_.dict())
+        msg = Message.from_llamaindex(llama_index_response.message)
+        li_ = llama_index_response.__dict__.copy()
+        li_["message"] = msg
+        return cls(**li_)
+
+    def as_json(self) -> dict:
+        """Return ChatResponse as JSON."""
+        return self.__dict__
 
 
 ChatResponseGen = Generator[ChatResponse, None, None]

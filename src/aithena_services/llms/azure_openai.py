@@ -8,18 +8,13 @@ from llama_index.llms.azure_openai import AzureOpenAI as LlamaIndexAzureOpenAI
 
 from aithena_services.envvars import AZURE_OPENAI_ENV_DICT
 from aithena_services.llms.types import Message
-from aithena_services.llms.types.base import (
-    AithenaLLM,
-    achataithena,
-    astreamchataithena,
-    chataithena,
-    streamchataithena,
-)
+from aithena_services.llms.types.base import AithenaLLM, chataithena, streamchataithena
 from aithena_services.llms.types.response import (
     ChatResponse,
     ChatResponseAsyncGen,
     ChatResponseGen,
 )
+from aithena_services.llms.utils import check_and_cast_messages
 
 
 class AzureOpenAI(LlamaIndexAzureOpenAI, AithenaLLM):
@@ -57,14 +52,13 @@ class AzureOpenAI(LlamaIndexAzureOpenAI, AithenaLLM):
         )
 
     def __init__(self, **kwargs: Any):
-        kwargs["api_key"] = AZURE_OPENAI_ENV_DICT["api_key"]
-        kwargs["azure_endpoint"] = AZURE_OPENAI_ENV_DICT["endpoint"]
-        kwargs["api_version"] = AZURE_OPENAI_ENV_DICT["api_version"]
+        for arg in ["api_key", "azure_endpoint", "api_version"]:
+            if arg not in kwargs or kwargs[arg] is None:
+                kwargs[arg] = AZURE_OPENAI_ENV_DICT[arg]
         if "deployment" in kwargs:
             if "engine" in kwargs:
                 raise ValueError("Cannot specify both `deployment` and `engine`.")
-            kwargs["engine"] = kwargs["deployment"]
-            kwargs.pop("deployment")
+            kwargs["engine"] = kwargs.pop("deployment")
         super().__init__(**kwargs)
 
     @chataithena
@@ -92,7 +86,6 @@ class AzureOpenAI(LlamaIndexAzureOpenAI, AithenaLLM):
         """
         return super().stream_chat(messages, **kwargs)  # type: ignore
 
-    @achataithena
     async def achat(
         self, messages: Sequence[dict | Message], **kwargs: Any
     ) -> ChatResponse:
@@ -102,9 +95,10 @@ class AzureOpenAI(LlamaIndexAzureOpenAI, AithenaLLM):
             messages: entire list of message history, where last
                 message is the one to be responded to
         """
-        return super().achat(messages, **kwargs)  # type: ignore
+        messages_ = check_and_cast_messages(messages)
+        llama_index_response = await super().achat(messages_, **kwargs)
+        return ChatResponse.from_llamaindex(llama_index_response)
 
-    @astreamchataithena
     async def astream_chat(
         self, messages: Sequence[dict | Message], **kwargs: Any
     ) -> ChatResponseAsyncGen:
@@ -117,4 +111,11 @@ class AzureOpenAI(LlamaIndexAzureOpenAI, AithenaLLM):
             messages: entire list of message history, where last
                 message is the one to be responded to
         """
-        return super().astream_chat(messages, **kwargs)  # type: ignore
+        messages_ = check_and_cast_messages(messages)
+        llama_stream = super().astream_chat(messages_, **kwargs)
+
+        async def gen() -> ChatResponseAsyncGen:
+            async for response in await llama_stream:
+                yield ChatResponse.from_llamaindex(response)
+
+        return gen()
