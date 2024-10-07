@@ -59,9 +59,9 @@ def change_llm_name(set_llm_name, reset_on_change, set_model_labels, *args):
 
 edit_index = solara.reactive(None)
 current_edit_value = solara.reactive("")
-LLMS_AVAILABLE = requests.get("http://localhost:8000/chat/list", timeout=10).json()
+LLMS_AVAILABLE = requests.get("http://localhost:30080/chat/list", timeout=10).json()
 
-CHAT_URL = "http://localhost:8000/chat/"
+CHAT_URL = "http://localhost:30080/chat/"
 
 
 def get_chat_url(model_: str) -> str:

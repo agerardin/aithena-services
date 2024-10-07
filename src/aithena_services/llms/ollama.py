@@ -8,7 +8,7 @@ from typing import Any, Sequence
 import requests  # type: ignore
 from llama_index.llms.ollama import Ollama as LlamaIndexOllama  # type: ignore
 
-from aithena_services.envvars import OLLAMA_HOST as OLLAMA_URL
+from aithena_services.envvars import OLLAMA_HOST
 from aithena_services.llms.types import Message
 from aithena_services.llms.types.base import AithenaLLM, chataithena, streamchataithena
 from aithena_services.llms.types.response import (
@@ -49,12 +49,12 @@ class Ollama(LlamaIndexOllama, AithenaLLM):
 
     def __init__(self, **kwargs: Any):
         if "base_url" not in kwargs or kwargs["base_url"] is None:
-            kwargs["base_url"] = OLLAMA_URL
+            kwargs["base_url"] = OLLAMA_HOST
         logger.debug(f"Initalizing Ollama with kwargs: {kwargs}")
         super().__init__(**kwargs)
 
     @staticmethod
-    def list_models(url: str = OLLAMA_URL) -> list[str]:  # type: ignore
+    def list_models(url: str = OLLAMA_HOST) -> list[str]:  # type: ignore
         """List available Ollama models."""
         r = [
             x["name"]

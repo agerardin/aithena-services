@@ -7,7 +7,7 @@ from typing import Any
 import requests  # type: ignore
 from llama_index.embeddings.ollama import OllamaEmbedding as LlamaIndexOllama
 
-from aithena_services.envvars import OLLAMA_HOST as OLLAMA_URL
+from aithena_services.envvars import OLLAMA_HOST as OLLAMA_HOST
 
 
 class OllamaEmbedding(LlamaIndexOllama):
@@ -19,11 +19,11 @@ class OllamaEmbedding(LlamaIndexOllama):
                 raise ValueError("Model not specified.")
             kwargs["model_name"] = kwargs["model"]
         if "base_url" not in kwargs or kwargs["base_url"] is None:
-            kwargs["base_url"] = OLLAMA_URL
+            kwargs["base_url"] = OLLAMA_HOST
         super().__init__(**kwargs)
 
     @staticmethod
-    def list_models(url: str = OLLAMA_URL) -> list[str]:  # type: ignore
+    def list_models(url: str = OLLAMA_HOST) -> list[str]:  # type: ignore
         """List available Ollama models."""
         r = [
             x["name"]

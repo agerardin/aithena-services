@@ -21,6 +21,8 @@ llama-index-llms-openai = "^0.2.0"
 llama-index-llms-ollama = "^0.3.0"
 llama-index-llms-azure-openai = "^0.2.0"
 typing-extensions = "^4.12.2"
+solara = "^1.39.0"
+markdown = "^3.7"
 
 
 [tool.poetry.group.dev.dependencies]

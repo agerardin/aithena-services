@@ -25,13 +25,13 @@ logger = get_logger(__file__)
 
 if AZURE_OPENAI_AVAILABLE:
     from aithena_services.envvars import AZURE_OPENAI_MODEL_ENV
-    from aithena_services.llms import AzureOpenAI
+    from aithena_services.llms.azure_openai import AzureOpenAI
     AZURE_OPENAI_DEPLOYMENT = os.getenv("AZURE_OPENAI_DEPLOYMENT", None)
     AZURE_OPENAI_MODEL = os.getenv("AZURE_OPENAI_MODEL", None)
 if OPENAI_AVAILABLE:
-    from aithena_services.llms import OpenAI
+    from aithena_services.llms.openai import OpenAI
 if OLLAMA_AVAILABLE:
-    from aithena_services.llms import Ollama
+    from aithena_services.llms.ollama import Ollama
 
 from llama_index.core.llms.llm import LLM
 

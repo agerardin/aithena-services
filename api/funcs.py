@@ -13,7 +13,7 @@ from utils import CONFIG_PATH, _write_to_config_json
 from aithena_services.envvars import OLLAMA_AVAILABLE
 
 if OLLAMA_AVAILABLE:
-    from aithena_services.envvars import OLLAMA_HOST as OLLAMA_URL
+    from aithena_services.envvars import OLLAMA_HOST as OLLAMA_HOST
 
 
 def _get_current_models(key: str) -> tuple[list[dict], list[str]]:
@@ -49,7 +49,7 @@ def _ollama_result_to_model_obj(url: str, mode: str, res: dict) -> ChatModel:
 def get_chat_models_from_ollama(url: Optional[str] = None) -> list[ChatModel]:
     """Retrieve list of chat models from Ollama."""
     if url is None:
-        url = OLLAMA_URL
+        url = OLLAMA_HOST
     res = requests.get(f"{url}/api/tags", timeout=40).json()["models"]
     names = [model["name"] for model in res]
     names = [name for name in names if not "embed" in name]
@@ -66,7 +66,7 @@ def get_chat_models_from_ollama(url: Optional[str] = None) -> list[ChatModel]:
 def get_embed_models_from_ollama(url: Optional[str] = None) -> list[ChatModel]:
     """Retrieve list of embed models from Ollama."""
     if url is None:
-        url = OLLAMA_URL
+        url = OLLAMA_HOST
     res = requests.get(f"{url}/api/tags", timeout=40).json()["models"]
     names = [model["name"] for model in res]
     names = [name for name in names if "embed" in name]

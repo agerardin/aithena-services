@@ -7,8 +7,9 @@ readme = "README.md"
 packages = [{include = "chatbot_dash", from = "src"}]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = ">=3.10,<3.12"
 aithena-services= {path="..", develop=true}
+solara = "^1.39.0"
 
 [build-system]
 requires = ["poetry-core"]

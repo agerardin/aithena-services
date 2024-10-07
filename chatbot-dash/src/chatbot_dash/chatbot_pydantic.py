@@ -80,7 +80,7 @@ def ChatBotPydantic(
             "overflow-y": "auto",
         },
     ):
-        ChatOptions(current_llm_name, messages, edit_mode, reset_on_change)
+    #    ChatOptions(current_llm_name, messages, edit_mode, reset_on_change)
 
         solara.ProgressLinear(call_llm.pending)
 
